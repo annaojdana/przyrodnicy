@@ -5,12 +5,14 @@ class AnswerButton extends StatefulWidget {
   final int number;
   final VoidCallback onTap;
   final bool isCorrect;
+  final double? size;
 
   const AnswerButton({
     super.key,
     required this.number,
     required this.onTap,
     this.isCorrect = false,
+    this.size,
   });
 
   @override
@@ -22,6 +24,11 @@ class _AnswerButtonState extends State<AnswerButton> {
 
   @override
   Widget build(BuildContext context) {
+    final buttonSize = widget.size ?? 100.0;
+    final fontSize = buttonSize * 0.48;
+    final borderRadius = buttonSize * 0.2;
+    final borderWidth = buttonSize > 70 ? 4.0 : 3.0;
+
     Color bgColor = AppColors.cream;
     if (widget.isCorrect) {
       bgColor = AppColors.gold;
@@ -39,18 +46,18 @@ class _AnswerButtonState extends State<AnswerButton> {
         duration: const Duration(milliseconds: 100),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          width: 100,
-          height: 100,
+          width: buttonSize,
+          height: buttonSize,
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(borderRadius),
             border: Border.all(
               color: AppColors.forestGreen,
-              width: 4,
+              width: borderWidth,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: _isPressed ? 4 : 10,
                 offset: Offset(0, _isPressed ? 2 : 5),
               ),
@@ -60,12 +67,12 @@ class _AnswerButtonState extends State<AnswerButton> {
             child: Text(
               '${widget.number}',
               style: TextStyle(
-                fontSize: 48,
+                fontSize: fontSize,
                 fontWeight: FontWeight.bold,
                 color: AppColors.forestGreen,
                 shadows: [
                   Shadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 2,
                     offset: const Offset(1, 1),
                   ),

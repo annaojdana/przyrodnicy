@@ -112,138 +112,153 @@ class _CountingGameScreenState extends State<CountingGameScreen>
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              // Gorny pasek z przyciskiem powrotu
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    HomeButton(onTap: () => Navigator.of(context).pop()),
-                    const Spacer(),
-                    // Wskazowka
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.cream,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 5,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final screenWidth = constraints.maxWidth;
+              final isSmallScreen = screenWidth < 400;
+              final buttonSize = isSmallScreen ? 45.0 : 60.0;
+
+              return Column(
+                children: [
+                  // Gorny pasek z przyciskiem powrotu
+                  Padding(
+                    padding: EdgeInsets.all(isSmallScreen ? 8.0 : 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        HomeButton(
+                          onTap: () => Navigator.of(context).pop(),
+                          size: buttonSize,
+                        ),
+                        // Wskazowka
+                        Flexible(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isSmallScreen ? 12 : 20,
+                              vertical: isSmallScreen ? 6 : 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.cream,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  blurRadius: 5,
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              'Policz i wybierz!',
+                              style: TextStyle(
+                                fontSize: isSmallScreen ? 14 : 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.forestGreen,
+                              ),
+                            ),
                           ),
-                        ],
-                      ),
-                      child: const Text(
-                        'Policz i wybierz!',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.forestGreen,
+                        ),
+                        SizedBox(width: buttonSize),
+                      ],
+                    ),
+                  ),
+
+                  // Obszar z obiektami do policzenia
+                  Expanded(
+                    flex: 3,
+                    child: Center(
+                      child: AnimatedBuilder(
+                        animation: _shakeController,
+                        builder: (context, child) {
+                          double shake = 0;
+                          if (_showTryAgain) {
+                            shake = sin(_shakeController.value * pi * 4) * 10;
+                          }
+                          return Transform.translate(
+                            offset: Offset(shake, 0),
+                            child: child,
+                          );
+                        },
+                        child: AnimatedBuilder(
+                          animation: _successController,
+                          builder: (context, child) {
+                            double scale = 1.0;
+                            if (_showSuccess) {
+                              scale =
+                                  1.0 + sin(_successController.value * pi) * 0.2;
+                            }
+                            return Transform.scale(
+                              scale: scale,
+                              child: child,
+                            );
+                          },
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: isSmallScreen ? 12 : 20,
+                            runSpacing: isSmallScreen ? 12 : 20,
+                            children: List.generate(_currentCount, (index) {
+                              return GameObject(
+                                emoji: _currentObject,
+                                showSuccess: _showSuccess,
+                                delay: index * 100,
+                                size: isSmallScreen ? 60 : 80,
+                              );
+                            }),
+                          ),
                         ),
                       ),
                     ),
-                    const Spacer(),
-                    const SizedBox(width: 60), // Balans dla przycisku home
-                  ],
-                ),
-              ),
+                  ),
 
-              // Obszar z obiektami do policzenia
-              Expanded(
-                flex: 3,
-                child: Center(
-                  child: AnimatedBuilder(
-                    animation: _shakeController,
-                    builder: (context, child) {
-                      double shake = 0;
-                      if (_showTryAgain) {
-                        shake = sin(_shakeController.value * pi * 4) * 10;
-                      }
-                      return Transform.translate(
-                        offset: Offset(shake, 0),
-                        child: child,
-                      );
-                    },
-                    child: AnimatedBuilder(
-                      animation: _successController,
-                      builder: (context, child) {
-                        double scale = 1.0;
-                        if (_showSuccess) {
-                          scale = 1.0 + sin(_successController.value * pi) * 0.2;
-                        }
-                        return Transform.scale(
-                          scale: scale,
-                          child: child,
-                        );
-                      },
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 20,
-                        runSpacing: 20,
-                        children: List.generate(_currentCount, (index) {
-                          return GameObject(
-                            emoji: _currentObject,
-                            showSuccess: _showSuccess,
-                            delay: index * 100,
+                  // Komunikat sukcesu
+                  if (_showSuccess)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        '🎉 Brawo! 🎉',
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 24 : 32,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.gold,
+                        ),
+                      ),
+                    ),
+
+                  // Komunikat "sprobuj jeszcze raz"
+                  if (_showTryAgain)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Spróbuj jeszcze raz! 💪',
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 18 : 24,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.brown,
+                        ),
+                      ),
+                    ),
+
+                  // Przyciski z odpowiedziami
+                  Expanded(
+                    flex: 2,
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: _options.map((option) {
+                          return AnswerButton(
+                            number: option,
+                            onTap: () => _checkAnswer(option),
+                            isCorrect: _showSuccess && option == _correctAnswer,
+                            size: isSmallScreen ? 60 : 80,
                           );
-                        }),
+                        }).toList(),
                       ),
                     ),
                   ),
-                ),
-              ),
 
-              // Komunikat sukcesu
-              if (_showSuccess)
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    '🎉 Brawo! 🎉',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.gold,
-                    ),
-                  ),
-                ),
-
-              // Komunikat "sprobuj jeszcze raz"
-              if (_showTryAgain)
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Spróbuj jeszcze raz! 💪',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.brown,
-                    ),
-                  ),
-                ),
-
-              // Przyciski z odpowiedziami
-              Expanded(
-                flex: 2,
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: _options.map((option) {
-                      return AnswerButton(
-                        number: option,
-                        onTap: () => _checkAnswer(option),
-                        isCorrect: _showSuccess && option == _correctAnswer,
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-            ],
+                  SizedBox(height: isSmallScreen ? 10 : 20),
+                ],
+              );
+            },
           ),
         ),
       ),

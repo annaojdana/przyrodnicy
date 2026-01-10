@@ -6,6 +6,7 @@ class ForestClearing extends StatefulWidget {
   final String label;
   final Color color;
   final VoidCallback onTap;
+  final double? size;
 
   const ForestClearing({
     super.key,
@@ -13,6 +14,7 @@ class ForestClearing extends StatefulWidget {
     required this.label,
     required this.color,
     required this.onTap,
+    this.size,
   });
 
   @override
@@ -61,6 +63,11 @@ class _ForestClearingState extends State<ForestClearing>
 
   @override
   Widget build(BuildContext context) {
+    final clearingSize = widget.size ?? 140.0;
+    final iconSize = clearingSize * 0.36;
+    final labelSize = clearingSize * 0.115;
+    final borderWidth = clearingSize > 100 ? 4.0 : 3.0;
+
     return GestureDetector(
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
@@ -74,13 +81,13 @@ class _ForestClearingState extends State<ForestClearing>
           );
         },
         child: Container(
-          width: 140,
-          height: 140,
+          width: clearingSize,
+          height: clearingSize,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: RadialGradient(
               colors: [
-                widget.color.withOpacity(0.3),
+                widget.color.withValues(alpha: 0.3),
                 AppColors.lightGreen,
                 AppColors.forestGreen,
               ],
@@ -88,16 +95,16 @@ class _ForestClearingState extends State<ForestClearing>
             ),
             border: Border.all(
               color: widget.color,
-              width: 4,
+              width: borderWidth,
             ),
             boxShadow: [
               BoxShadow(
-                color: widget.color.withOpacity(0.4),
+                color: widget.color.withValues(alpha: 0.4),
                 blurRadius: _isPressed ? 5 : 15,
                 spreadRadius: _isPressed ? 0 : 5,
               ),
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 10,
                 offset: const Offset(0, 5),
               ),
@@ -108,18 +115,18 @@ class _ForestClearingState extends State<ForestClearing>
             children: [
               Text(
                 widget.icon,
-                style: const TextStyle(fontSize: 50),
+                style: TextStyle(fontSize: iconSize),
               ),
-              const SizedBox(height: 5),
+              SizedBox(height: clearingSize * 0.035),
               Text(
                 widget.label,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: labelSize,
                   fontWeight: FontWeight.bold,
                   color: AppColors.cream,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withValues(alpha: 0.5),
                       blurRadius: 3,
                       offset: const Offset(1, 1),
                     ),

@@ -87,198 +87,217 @@ class _ForestScreenState extends State<ForestScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Tlo - gradient nieba
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF87CEEB), // Jasne niebo
-                  Color(0xFFB0E0E6), // Jasnoniebieskie
-                ],
-                stops: [0.0, 0.6],
-              ),
-            ),
-          ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          final screenHeight = constraints.maxHeight;
+          final isSmallScreen = screenWidth < 400;
+          final clearingSize = isSmallScreen ? 100.0 : 140.0;
+          final sunSize = isSmallScreen ? 50.0 : 80.0;
 
-          // Animowane chmury
-          AnimatedBuilder(
-            animation: _cloudController,
-            builder: (context, child) {
-              return Positioned(
-                top: 30,
-                left: -100 + (_cloudController.value * 500),
-                child: Opacity(
-                  opacity: 0.8,
-                  child: Text(
-                    '☁️',
-                    style: TextStyle(fontSize: 60),
+          return Stack(
+            children: [
+              // Tlo - gradient nieba
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFF87CEEB), // Jasne niebo
+                      Color(0xFFB0E0E6), // Jasnoniebieskie
+                    ],
+                    stops: [0.0, 0.6],
                   ),
                 ),
-              );
-            },
-          ),
-          AnimatedBuilder(
-            animation: _cloudController,
-            builder: (context, child) {
-              return Positioned(
-                top: 80,
-                right: -100 + (_cloudController.value * 400),
-                child: Opacity(
-                  opacity: 0.6,
-                  child: Text(
-                    '☁️',
-                    style: TextStyle(fontSize: 40),
+              ),
+
+              // Animowane chmury
+              AnimatedBuilder(
+                animation: _cloudController,
+                builder: (context, child) {
+                  return Positioned(
+                    top: 30,
+                    left: -100 + (_cloudController.value * screenWidth),
+                    child: Opacity(
+                      opacity: 0.8,
+                      child: Text(
+                        '☁️',
+                        style: TextStyle(fontSize: isSmallScreen ? 40 : 60),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              AnimatedBuilder(
+                animation: _cloudController,
+                builder: (context, child) {
+                  return Positioned(
+                    top: isSmallScreen ? 50 : 80,
+                    right: -100 + (_cloudController.value * screenWidth * 0.8),
+                    child: Opacity(
+                      opacity: 0.6,
+                      child: Text(
+                        '☁️',
+                        style: TextStyle(fontSize: isSmallScreen ? 25 : 40),
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              // Slonce
+              Positioned(
+                top: isSmallScreen ? 10 : 20,
+                right: isSmallScreen ? 15 : 30,
+                child: Container(
+                  width: sunSize,
+                  height: sunSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.gold,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.gold.withValues(alpha: 0.5),
+                        blurRadius: isSmallScreen ? 15 : 30,
+                        spreadRadius: isSmallScreen ? 5 : 10,
+                      ),
+                    ],
                   ),
                 ),
-              );
-            },
-          ),
+              ),
 
-          // Slonce
-          Positioned(
-            top: 20,
-            right: 30,
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.gold,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.gold.withOpacity(0.5),
-                    blurRadius: 30,
-                    spreadRadius: 10,
+              // Tlo lasu - trawa i drzewa
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: screenHeight * 0.5,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0xFF8FBC8F), // Jasna zielen
+                        Color(0xFF4A7C59), // Ciemna zielen
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-          ),
-
-          // Tlo lasu - trawa i drzewa
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.5,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF8FBC8F), // Jasna zielen
-                    Color(0xFF4A7C59), // Ciemna zielen
-                  ],
                 ),
               ),
-            ),
-          ),
 
-          // Drzewa w tle
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.35,
-            left: 20,
-            child: _buildTree(120),
-          ),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.4,
-            right: 40,
-            child: _buildTree(100),
-          ),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.38,
-            left: MediaQuery.of(context).size.width * 0.3,
-            child: _buildTree(140),
-          ),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.35,
-            right: MediaQuery.of(context).size.width * 0.25,
-            child: _buildTree(110),
-          ),
+              // Drzewa w tle
+              Positioned(
+                bottom: screenHeight * 0.35,
+                left: 20,
+                child: _buildTree(isSmallScreen ? 80 : 120),
+              ),
+              Positioned(
+                bottom: screenHeight * 0.4,
+                right: 40,
+                child: _buildTree(isSmallScreen ? 70 : 100),
+              ),
+              Positioned(
+                bottom: screenHeight * 0.38,
+                left: screenWidth * 0.3,
+                child: _buildTree(isSmallScreen ? 90 : 140),
+              ),
+              Positioned(
+                bottom: screenHeight * 0.35,
+                right: screenWidth * 0.25,
+                child: _buildTree(isSmallScreen ? 75 : 110),
+              ),
 
-          // Animowane liscie
-          AnimatedBuilder(
-            animation: _leavesController,
-            builder: (context, child) {
-              return Positioned(
-                bottom: MediaQuery.of(context).size.height * 0.3 +
-                    (_leavesController.value * 10),
-                left: 50,
-                child: Opacity(
-                  opacity: 0.7,
-                  child: Text('🍃', style: TextStyle(fontSize: 30)),
+              // Animowane liscie
+              AnimatedBuilder(
+                animation: _leavesController,
+                builder: (context, child) {
+                  return Positioned(
+                    bottom:
+                        screenHeight * 0.3 + (_leavesController.value * 10),
+                    left: 50,
+                    child: Opacity(
+                      opacity: 0.7,
+                      child: Text('🍃',
+                          style:
+                              TextStyle(fontSize: isSmallScreen ? 20 : 30)),
+                    ),
+                  );
+                },
+              ),
+              AnimatedBuilder(
+                animation: _leavesController,
+                builder: (context, child) {
+                  return Positioned(
+                    bottom:
+                        screenHeight * 0.35 - (_leavesController.value * 8),
+                    right: 80,
+                    child: Opacity(
+                      opacity: 0.6,
+                      child: Text('🍂',
+                          style:
+                              TextStyle(fontSize: isSmallScreen ? 18 : 25)),
+                    ),
+                  );
+                },
+              ),
+
+              // Polany (przyciski do gier)
+              Positioned(
+                bottom: screenHeight * 0.15,
+                left: screenWidth * 0.12,
+                child: ForestClearing(
+                  icon: '🔢',
+                  label: 'Liczenie',
+                  color: AppColors.gold,
+                  onTap: _navigateToCountingGame,
+                  size: clearingSize,
                 ),
-              );
-            },
-          ),
-          AnimatedBuilder(
-            animation: _leavesController,
-            builder: (context, child) {
-              return Positioned(
-                bottom: MediaQuery.of(context).size.height * 0.35 -
-                    (_leavesController.value * 8),
-                right: 80,
-                child: Opacity(
-                  opacity: 0.6,
-                  child: Text('🍂', style: TextStyle(fontSize: 25)),
+              ),
+              Positioned(
+                bottom: screenHeight * 0.15,
+                right: screenWidth * 0.12,
+                child: ForestClearing(
+                  icon: '🎨',
+                  label: 'Kolory',
+                  color: AppColors.red,
+                  onTap: _navigateToColorGame,
+                  size: clearingSize,
                 ),
-              );
-            },
-          ),
+              ),
 
-          // Polany (przyciski do gier)
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.15,
-            left: MediaQuery.of(context).size.width * 0.15,
-            child: ForestClearing(
-              icon: '🔢',
-              label: 'Liczenie',
-              color: AppColors.gold,
-              onTap: _navigateToCountingGame,
-            ),
-          ),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.15,
-            right: MediaQuery.of(context).size.width * 0.15,
-            child: ForestClearing(
-              icon: '🎨',
-              label: 'Kolory',
-              color: AppColors.red,
-              onTap: _navigateToColorGame,
-            ),
-          ),
+              // Ptaki
+              Positioned(
+                top: isSmallScreen ? 60 : 100,
+                left: isSmallScreen ? 60 : 100,
+                child: Text('🐦',
+                    style: TextStyle(fontSize: isSmallScreen ? 18 : 25)),
+              ),
+              Positioned(
+                top: isSmallScreen ? 75 : 120,
+                left: isSmallScreen ? 90 : 140,
+                child: Text('🐦',
+                    style: TextStyle(fontSize: isSmallScreen ? 14 : 20)),
+              ),
 
-          // Ptaki
-          Positioned(
-            top: 100,
-            left: 100,
-            child: Text('🐦', style: TextStyle(fontSize: 25)),
-          ),
-          Positioned(
-            top: 120,
-            left: 140,
-            child: Text('🐦', style: TextStyle(fontSize: 20)),
-          ),
-
-          // Motyle
-          AnimatedBuilder(
-            animation: _leavesController,
-            builder: (context, child) {
-              return Positioned(
-                bottom: MediaQuery.of(context).size.height * 0.4 +
-                    (_leavesController.value * 15),
-                left: MediaQuery.of(context).size.width * 0.5 +
-                    (_leavesController.value * 20),
-                child: Text('🦋', style: TextStyle(fontSize: 30)),
-              );
-            },
-          ),
-        ],
+              // Motyle
+              AnimatedBuilder(
+                animation: _leavesController,
+                builder: (context, child) {
+                  return Positioned(
+                    bottom: screenHeight * 0.4 +
+                        (_leavesController.value * 15),
+                    left: screenWidth * 0.5 +
+                        (_leavesController.value * 20),
+                    child: Text('🦋',
+                        style: TextStyle(fontSize: isSmallScreen ? 20 : 30)),
+                  );
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -296,7 +315,7 @@ class _ForestScreenState extends State<ForestScreen>
             borderRadius: BorderRadius.circular(height * 0.4),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 10,
                 offset: const Offset(5, 5),
               ),

@@ -4,12 +4,14 @@ class GameObject extends StatefulWidget {
   final String emoji;
   final bool showSuccess;
   final int delay;
+  final double? size;
 
   const GameObject({
     super.key,
     required this.emoji,
     this.showSuccess = false,
     this.delay = 0,
+    this.size,
   });
 
   @override
@@ -53,6 +55,9 @@ class _GameObjectState extends State<GameObject>
 
   @override
   Widget build(BuildContext context) {
+    final objectSize = widget.size ?? 100.0;
+    final emojiSize = objectSize * 0.6;
+
     return AnimatedBuilder(
       animation: _bounceAnimation,
       builder: (context, child) {
@@ -66,14 +71,14 @@ class _GameObjectState extends State<GameObject>
         );
       },
       child: Container(
-        width: 100,
-        height: 100,
+        width: objectSize,
+        height: objectSize,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.8),
+          color: Colors.white.withValues(alpha: 0.8),
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -82,7 +87,7 @@ class _GameObjectState extends State<GameObject>
         child: Center(
           child: Text(
             widget.emoji,
-            style: const TextStyle(fontSize: 60),
+            style: TextStyle(fontSize: emojiSize),
           ),
         ),
       ),
